@@ -35,7 +35,7 @@
 	if ([@"/Users/kronra/syncplicity/Product Management/SDLC and PM Process.pptx" isEqualToString:[url path]])
 	{
 		log = TRUE;
-		NSLog(@"- (void)IconOverlayHandlers_drawIconWithFrame:(struct CGRect)arg1 %@", [url path]);
+		NSLog(@"- (void)IconOverlayHandlers_drawIconWithFrame:(struct CGRect)arg1 %@, precomposedStringWithCanonicalMapping: %@", [url path], [[url path] precomposedStringWithCanonicalMapping]);
 	}
 
 	NSNumber* imageIndex = [[ContentManager sharedInstance] iconByPath:[url path]];
@@ -80,7 +80,7 @@
 	if ([@"/Users/kronra/syncplicity/Product Management/SDLC and PM Process.pptx" isEqualToString:[url path]])
 	{
 		log = TRUE;
-		NSLog(@"- (void)IconOverlayHandlers_drawImage:(id)arg1 %@", [url path]);
+		NSLog(@"- (void)IconOverlayHandlers_drawImage:(id)arg1 %@, precomposedStringWithCanonicalMapping: %@", [url path], [[url path] precomposedStringWithCanonicalMapping]);
 	}
 
 	NSNumber* imageIndex = [[ContentManager sharedInstance] iconByPath:[url path]];

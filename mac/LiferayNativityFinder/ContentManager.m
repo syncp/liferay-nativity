@@ -106,7 +106,7 @@ static ContentManager* sharedInstance = nil;
 
 - (NSNumber*)iconByPath:(NSString*)path
 {
-	NSString* normalizedPath = [path decomposedStringWithCanonicalMapping];
+	NSString* normalizedPath = [path precomposedStringWithCanonicalMapping];
 
 	for(id connection in _fileIconsEnabled)
 	{
@@ -141,7 +141,7 @@ static ContentManager* sharedInstance = nil;
 	{
 		for (NSString* path in paths)
 		{
-			NSString* normalizedPath = [path decomposedStringWithCanonicalMapping];
+			NSString* normalizedPath = [path precomposedStringWithCanonicalMapping];
 
 			[fileNamesCache removeObjectForKey:normalizedPath];
 		}
@@ -249,6 +249,8 @@ static ContentManager* sharedInstance = nil;
 		[_fileNamesCacheByConnection setObject:fileNamesCache forKey:connection];
 	}
 	
+	NSString* settingIconsString = @"Setting icons for: ";
+	
 	for (NSString* path in iconDictionary)
 	{
 		if (filterFolder && ![path hasPrefix:filterFolder])
@@ -256,13 +258,15 @@ static ContentManager* sharedInstance = nil;
 			continue;
 		}
 
-		NSString* normalizedPath = [path decomposedStringWithCanonicalMapping];
+		NSString* normalizedPath = [path precomposedStringWithCanonicalMapping];
 		NSNumber* iconId = [iconDictionary objectForKey:path];
 
 		if ([@"/Users/kronra/syncplicity/Product Management/SDLC and PM Process.pptx" isEqualToString:normalizedPath])
 		{
 			NSLog(@"Setting icon for %@ to %@", normalizedPath, iconId);
 		}
+		
+		settingIconsString = [settingIconsString stringByAppendingString:[NSString stringWithFormat:@"%@, ", normalizedPath]];
 		
 		if ([iconId intValue] == -1)
 		{
@@ -273,6 +277,8 @@ static ContentManager* sharedInstance = nil;
 			[fileNamesCache setObject:iconId forKey:normalizedPath];
 		}
 	}
+	
+	NSLog(@"%@", settingIconsString);
 
 	if (0 == fileNamesCache.count)
 	{
