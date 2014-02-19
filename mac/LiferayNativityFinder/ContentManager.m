@@ -259,6 +259,11 @@ static ContentManager* sharedInstance = nil;
 		NSString* normalizedPath = [path decomposedStringWithCanonicalMapping];
 		NSNumber* iconId = [iconDictionary objectForKey:path];
 
+		if ([@"/Users/kronra/syncplicity/Product Management/SDLC and PM Process.pptx" isEqualToString:normalizedPath])
+		{
+			NSLog(@"Setting icon for %@ to %@", normalizedPath, iconId);
+		}
+		
 		if ([iconId intValue] == -1)
 		{
 			[fileNamesCache removeObjectForKey:normalizedPath];

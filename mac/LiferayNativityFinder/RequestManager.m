@@ -158,6 +158,7 @@ static double maxMenuItemsRequestWaitMilliSec = 250;
 	NSDictionary* jsonDictionary = [data objectFromJSONData];
 
 	NSString* command = [jsonDictionary objectForKey:@"command"];
+	NSLog(@"Command: %@", command);
 	NSData* value = [jsonDictionary objectForKey:@"value"];
 
 	if (!command)
@@ -297,9 +298,13 @@ static double maxMenuItemsRequestWaitMilliSec = 250;
 - (void)execSetFileIconsCmd:(NSData*)cmdData replyTo:(GCDAsyncSocket*)sock
 {
 	NSDictionary* iconDictionary = (NSDictionary*)cmdData;
+	
+	NSLog(@"Setting %lu icons", (unsigned long)iconDictionary.count);
 
 	dispatch_async(dispatch_get_main_queue(), ^{
+		NSLog(@"Setting %lu icons on UI thread", (unsigned long)iconDictionary.count);
 		[[ContentManager sharedInstance] setIconsFor:sock.userData iconIdsByPath:iconDictionary filterByFolder:_filterFolder];
+		NSLog(@"Finished setting %lu icons on UI thread", (unsigned long)iconDictionary.count);
 	});
 	
 	[self replyString:@"1" toSocket:sock];
@@ -445,6 +450,8 @@ static double maxMenuItemsRequestWaitMilliSec = 250;
 {
 	if ([_connectedListenSockets containsObject:socket])
 	{
+		NSLog(@"Read data on listen socket");
+		
 		[self execCommand:[data subdataWithRange:NSMakeRange(0, [data length] - 2)] replyTo:socket];
 
 		[socket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:-1 tag:0];
@@ -452,6 +459,8 @@ static double maxMenuItemsRequestWaitMilliSec = 250;
 
 	if ([_connectedCallbackSockets containsObject:socket])
 	{
+		NSLog(@"Read data on callback socket");
+		
 		NSData* strData = [data subdataWithRange:NSMakeRange(0, [data length] - 2)];
 		NSString* callbackString = [[NSString alloc] initWithData:strData encoding:NSUTF8StringEncoding];
 

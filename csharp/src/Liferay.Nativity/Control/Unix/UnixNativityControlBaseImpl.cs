@@ -153,6 +153,7 @@ namespace Liferay.Nativity.Control.Unix
 			try 
 			{
 				var messageString = JsonConvert.SerializeObject(message);
+				logger.DebugFormat("Sending: {0}", messageString);
 				this.commandOutputStream.WriteLine(messageString);
 
 				/* log4net doesn't support trace
