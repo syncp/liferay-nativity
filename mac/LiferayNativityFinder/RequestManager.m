@@ -387,7 +387,7 @@ static NSTimeInterval DISABLE_ICON_OVERLAYS_ON_TIMEOUT_TIMEINTERVAL = 5.0f;
 	if (nil != _callbackMsgs) {
 		do {
 			[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:_waitDate];
-		} while (_callbackMsgs.count < _expectedCallbackResults && NSOrderedAscending == [_waitDate compare:[NSDate date]]);
+		} while (_callbackMsgs.count < _expectedCallbackResults && NSOrderedDescending == [_waitDate compare:[NSDate date]]);
 
 		[_callbackMsgsStack addObject:_callbackMsgs];
 		_callbackMsgs = nil;
@@ -441,9 +441,9 @@ static NSTimeInterval DISABLE_ICON_OVERLAYS_ON_TIMEOUT_TIMEINTERVAL = 5.0f;
 		
 		NSDate* oldWaitDate = _waitDate;
 		_waitDate = [[NSDate dateWithTimeIntervalSinceNow:MAX_CALLBACK_REQUEST_WAIT_TIMEINTERVAL] retain];
-		do {
+		//do {
 			[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:_waitDate];
-		} while (_callbackMsgs.count < _expectedCallbackResults && NSOrderedAscending == [_waitDate compare:[NSDate date]]);
+		//} while (_callbackMsgs.count < _expectedCallbackResults && NSOrderedDescending == [_waitDate compare:[NSDate date]]);
 		
 		if (_callbackMsgs.count < _expectedCallbackResults) {
 			NSLog(@"LiferayNativityFinder: menu item request timed out");
@@ -543,11 +543,14 @@ static NSTimeInterval DISABLE_ICON_OVERLAYS_ON_TIMEOUT_TIMEINTERVAL = 5.0f;
 			[callbackSocket writeData:data withTimeout:-1 tag:0];
 		}
 		
-		/*NSDate* waitDate = [NSDate dateWithTimeIntervalSinceNow:MAX_CALLBACK_REQUEST_WAIT_TIMEINTERVAL];
+		NSDate* oldWaitDate = _waitDate;
+		_waitDate = [[NSDate dateWithTimeIntervalSinceNow:MAX_CALLBACK_REQUEST_WAIT_TIMEINTERVAL] retain];
 		do {
-			[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:waitDate];
-		} while (_callbackMsgs.count < _expectedCallbackResults && NSOrderedAscending == [waitDate compare:[NSDate date]]);
-		
+			[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:_waitDate];
+		} while (_callbackMsgs.count < _expectedCallbackResults && NSOrderedDescending == [_waitDate compare:[NSDate date]]);
+		[_waitDate autorelease];
+		_waitDate = oldWaitDate;
+
 		if (_callbackMsgs.count < _expectedCallbackResults) {
 			NSLog(@"LiferayNativityFinder: file icon request timed out: %@", file);
 			
@@ -555,7 +558,7 @@ static NSTimeInterval DISABLE_ICON_OVERLAYS_ON_TIMEOUT_TIMEINTERVAL = 5.0f;
 			_disableIconOverlaysUntil = [[[NSDate date] dateByAddingTimeInterval:DISABLE_ICON_OVERLAYS_ON_TIMEOUT_TIMEINTERVAL] retain];
 			
 			return [iconIds autorelease];
-		}*/
+		}
 		
 		@try {
 			
