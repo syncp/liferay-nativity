@@ -52,12 +52,12 @@
 
 @interface RequestManager : NSObject
 {
-	dispatch_queue_t _listenQueue;
-	dispatch_queue_t _callbackQueue;
+	//dispatch_queue_t _listenQueue;
+	//dispatch_queue_t _callbackQueue;
 	
-	NSConditionLock* _callbackLock;
+	//NSConditionLock* _callbackLock;
 	int _expectedCallbackResults;
-	NSDate* _waitForIconOverlaysUntil;
+	//NSDate* _waitForIconOverlaysUntil;
 	NSDate* _disableIconOverlaysUntil;
 	
 	GCDAsyncSocket* _listenSocket;
@@ -67,12 +67,15 @@
 	NSHashTable* _connectedListenSocketsWithIconCallbacks;
 	NSHashTable* _connectedCallbackSockets;
 	NSMutableDictionary* _callbackMsgs;
+	NSMutableArray* _callbackMsgsStack;
 	
 	// Why not just call [... count] directly?
 	// Thread-safety! these collections are manipulated on the socket's thread,
 	// but this value is read on the main thread
-	int _connectedCallbackSocketsCount;
-	int _connectedListenSocketsWithIconCallbacksCount;
+	//int _connectedCallbackSocketsCount;
+	//int _connectedListenSocketsWithIconCallbacksCount;
+	
+	NSDate* _waitDate;
 
 	NSHashTable* _automaticCleanupPrograms;
 
