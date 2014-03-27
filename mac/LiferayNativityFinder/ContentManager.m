@@ -39,10 +39,14 @@
  * Changes:
  * - (Andrew Rondeau) Added the ability to group icons by connection, this allows
  * disabling / clearing icons for one program, while leaving another unaffected
+ * - (Jim Nagel) Add the following fix from Liferay for updating icons on 10.9.x:
+ * NVTY-41 Mavericks List/Coverflow view will now redraw when needed
+ * Code changes affected repaintAllWindows
  */
 
 #import <AppKit/NSApplication.h>
 #import <AppKit/NSWindow.h>
+#import <objc/runtime.h>
 #import "ContentManager.h"
 #import "MenuManager.h"
 #import "RequestManager.h"
@@ -154,7 +158,7 @@ static ContentManager* sharedInstance = nil;
 {
 	NSArray* windows = [[NSApplication sharedApplication] windows];
 
-	for (int i = 0; i < [windows count]; ++i)
+	for (int i = 0; i < [windows count]; i++)
 	{
 		NSWindow* window = [windows objectAtIndex:i];
 
@@ -193,7 +197,7 @@ static ContentManager* sharedInstance = nil;
 				else
 				{
 					NSLog(@"LiferayNativityFinder: refreshing icon badges failed");
-					
+
 					return;
 				}
 
@@ -212,17 +216,32 @@ static ContentManager* sharedInstance = nil;
 
 			if (repaintWindow)
 			{
-				NSObject* browserViewController;
-
 				if ([browserWindowController respondsToSelector:@selector(browserViewController)])
 				{
 					// 10.7 & 10.8
-					browserViewController = [browserWindowController browserViewController];
+					NSObject* browserViewController = [browserWindowController browserViewController];
+
+					NSObject* browserView = [browserViewController browserView];
+
+					dispatch_async(dispatch_get_main_queue(), ^{[browserView setNeedsDisplay:YES];});
 				}
 				else if ([browserWindowController respondsToSelector:@selector(activeBrowserViewController)])
 				{
 					// 10.9
-					browserViewController = [browserWindowController activeBrowserViewController];
+					NSObject* browserViewController = [browserWindowController activeBrowserViewController];
+
+					NSObject* browserView = [browserViewController browserView];
+
+					if ([browserView isKindOfClass:(id)objc_getClass("TListView")])
+					{
+						// List or Coverflow View
+						[self setNeedsDisplayForListView:browserView];
+					}
+					else
+					{
+						// Icon or Column View
+						dispatch_async(dispatch_get_main_queue(), ^{[browserView setNeedsDisplay:YES];});
+					}
 				}
 				else
 				{
@@ -230,10 +249,6 @@ static ContentManager* sharedInstance = nil;
 
 					return;
 				}
-
-				NSObject* browserView = [browserViewController browserView];
-
-				[browserView setNeedsDisplay:YES];
 			}
 		}
 	}
@@ -275,6 +290,25 @@ static ContentManager* sharedInstance = nil;
 	}
 	
 	[self repaintAllWindows];
+}
+
+- (void)setNeedsDisplayForListView:(NSView*)view
+{
+	NSArray* subviews = [view subviews];
+
+	for (int i = 0; i < [subviews count]; i++)
+	{
+		NSView* subview = [subviews objectAtIndex:i];
+
+		if ([subview isKindOfClass:(id)objc_getClass("TListRowView")])
+		{
+			[self setNeedsDisplayForListView:subview];
+		}
+		else if ([subview isKindOfClass:(id)objc_getClass("TListNameCellView")])
+		{
+			dispatch_async(dispatch_get_main_queue(), ^{[subview setNeedsDisplay:YES];});
+		}
+	}
 }
 
 @end
