@@ -89,7 +89,9 @@ static BOOL installed = NO;
 	[RequestManager sharedInstance];
 
 	// Icons
-	[self hookMethod:@selector(drawImage:) inClass:@"IKImageBrowserCell" toCallToTheNewMethod:@selector(IconOverlayHandlers_drawImage:)]; // 10.7 & 10.8 & 10.9 (Icon View)
+	[self hookMethod:@selector(drawImage:) inClass:@"IKImageBrowserCell" toCallToTheNewMethod:@selector(IconOverlayHandlers_IKImageBrowserCell_drawImage:)]; // 10.7 & 10.8 & 10.9 (Icon View arrange by name)
+
+	[self hookMethod:@selector(drawImage:) inClass:@"IKFinderReflectiveIconCell" toCallToTheNewMethod:@selector(IconOverlayHandlers_IKFinderReflectiveIconCell_drawImage:)]; // 10.7 & 10.8 & 10.9 (Icon View arrange by everything else)
 
 	[self hookMethod:@selector(drawIconWithFrame:) inClass:@"TListViewIconAndTextCell" toCallToTheNewMethod:@selector(IconOverlayHandlers_drawIconWithFrame:)]; // 10.7 & 10.8 & 10.9 Column View
 
@@ -135,7 +137,9 @@ static BOOL installed = NO;
 	[[RequestManager sharedInstance] dealloc];
 
 	// Icons
-	[self hookMethod:@selector(IconOverlayHandlers_drawImage:) inClass:@"TIconViewCell" toCallToTheNewMethod:@selector(drawImage:)]; // 10.7 & 10.8 & 10.9
+	[self hookMethod:@selector(IconOverlayHandlers_IKImageBrowserCell_drawImage:) inClass:@"IKImageBrowserCell" toCallToTheNewMethod:@selector(drawImage:)]; // 10.7 & 10.8 & 10.9
+	
+	[self hookMethod:@selector(IconOverlayHandlers_IKFinderReflectiveIconCell_drawImage:) inClass:@"IKFinderReflectiveIconCell" toCallToTheNewMethod:@selector(drawImage:)]; // 10.7 & 10.8 & 10.9 (Icon View arrange by everything else)
 
 	[self hookMethod:@selector(IconOverlayHandlers_drawIconWithFrame:) inClass:@"TListViewIconAndTextCell" toCallToTheNewMethod:@selector(drawIconWithFrame:)]; // 10.7 & 10.8 & 10.9
 
