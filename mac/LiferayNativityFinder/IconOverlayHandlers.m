@@ -81,7 +81,21 @@
 }
 
 // 10.7 & 10.8 & 10.9 (Icon View)
-- (void)IconOverlayHandlers_drawImage:(id)arg1
+- (void)IconOverlayHandlers_IKImageBrowserCell_drawImage:(id)arg1
+{
+	IKImageWrapper*imageWrapper = [self IconOverlayHandlers_imageWrapper:arg1];
+
+	[self IconOverlayHandlers_IKImageBrowserCell_drawImage:imageWrapper];
+}
+
+- (void)IconOverlayHandlers_IKFinderReflectiveIconCell_drawImage:(id)arg1
+{
+	IKImageWrapper*imageWrapper = [self IconOverlayHandlers_imageWrapper:arg1];
+
+	[self IconOverlayHandlers_IKFinderReflectiveIconCell_drawImage:imageWrapper];
+}
+
+- (IKImageWrapper*)IconOverlayHandlers_imageWrapper:(id)arg1
 {
 	TIconViewCell* realSelf = (TIconViewCell*)self;
 	FINode* node = (FINode*)[realSelf representedItem];
@@ -114,12 +128,11 @@
 
 			[icon unlockFocus];
 
-			arg1 = [[IKImageWrapper alloc] initWithNSImage:icon];
-			[arg1 autorelease];
+			return [[[IKImageWrapper alloc] initWithNSImage:icon] autorelease];
 		}
 	}
 
-	[self IconOverlayHandlers_drawImage:arg1];
+	return arg1;
 }
 
 // 10.9 (List and Coverflow Views)
