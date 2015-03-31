@@ -385,7 +385,11 @@ static NSInteger GOT_CALLBACK_RESPONSE = 2;
 
 - (void)menuItemClicked:(NSDictionary*)actionDictionary
 {
-	if ([_connectedCallbackSockets count] == 0)
+	// Why not just call [_connectedCallbackSockets count] directly?
+	// Thread-safety! _connectedCallbackSockets is manipulated on the socket's thread,
+	// but this method is called on the main thread
+	OSMemoryBarrier();
+	if (_connectedCallbackSocketsCount == 0)
 	{
 		return;
 	}
