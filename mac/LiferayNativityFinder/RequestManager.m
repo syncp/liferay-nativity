@@ -553,8 +553,9 @@ static NSInteger GOT_CALLBACK_RESPONSE = 2;
 	// Why not just call [_connectedListenSocketsWithIconCallbacks count] directly?
 	// Thread-safety! _connectedListenSocketsWithIconCallbacks is manipulated on the socket's thread,
 	// but this method is called on the main thread
+	// should use _connectedCallbackSocketsCount instead of _connectedListenSocketsWithIconCallbacks
 	OSMemoryBarrier();
-	if (_connectedListenSocketsWithIconCallbacksCount == 0)
+	if (_connectedCallbackSocketsCount == 0)
 	{
 		return [iconIds autorelease];
 	}
@@ -584,7 +585,7 @@ static NSInteger GOT_CALLBACK_RESPONSE = 2;
 
 	@try {
 		[_callbackMsgs removeAllObjects];
-		_expectedCallbackResults = _connectedListenSocketsWithIconCallbacksCount;
+		 _expectedCallbackResults = _connectedCallbackSocketsCount;
 
 		NSData* data = [[jsonString stringByAppendingString:@"\r\n"] dataUsingEncoding:NSUTF8StringEncoding];
 		
@@ -611,8 +612,8 @@ static NSInteger GOT_CALLBACK_RESPONSE = 2;
 	}
 	
 	if (NO == [_callbackLock lockWhenCondition:GOT_CALLBACK_RESPONSE beforeDate:[NSDate dateWithTimeIntervalSinceNow:MAX_CALLBACK_REQUEST_WAIT_TIMEINTERVAL]]) {
-		NSLog(@"LiferayNativityFinder: file icon request timed out: %@", file);
-		
+		 NSLog(@"LiferayNativityFinder: file icon request timed out: %@ : %d", file, _expectedCallbackResults);
+
 		[_disableIconOverlaysUntil release];
 		_disableIconOverlaysUntil = [[[NSDate date] dateByAddingTimeInterval:DISABLE_ICON_OVERLAYS_ON_TIMEOUT_TIMEINTERVAL] retain];
 
@@ -718,13 +719,16 @@ static NSInteger GOT_CALLBACK_RESPONSE = 2;
 				OSMemoryBarrier();
 			}
 			@finally {
+
+				NSLog(@"LiferayNativityFinder: didReadData: %lu : %d", (unsigned long)[_callbackMsgs count], _expectedCallbackResults);
+
 				if ([_callbackMsgs count] >= _expectedCallbackResults) {
 					[_callbackLock unlockWithCondition:GOT_CALLBACK_RESPONSE];
 				} else {
 					[_callbackLock unlockWithCondition:WAITING_FOR_CALLBACK_RESPONSE];
 				}
 			}
-		
+
 			[callbackString release];
 		
 			[socket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:-1 tag:0];
@@ -741,10 +745,11 @@ static NSInteger GOT_CALLBACK_RESPONSE = 2;
 {
 	// This callback can happen on either queue, yet each queue has private data
 	// In order to ensure thread-safe reads from each collection, perform the actual disconnect logic on the appropriate queue
-	
+	NSLog(@"Entering socketDidDisconnect");
 	dispatch_async(_listenQueue, ^{
 		if ([_connectedListenSockets containsObject:socket])
 		{
+			NSLog(@"Entering _listenQueue");
 			[_connectedListenSockets removeObject:socket];
 			
 			if (YES == [_connectedListenSocketsWithIconCallbacks containsObject:socket])
@@ -769,16 +774,20 @@ static NSInteger GOT_CALLBACK_RESPONSE = 2;
 			});
 			
 			[_automaticCleanupPrograms removeObject:socket.userData];
+			NSLog(@"Exiting _listenQueue");
 		}
 	});
 
 	dispatch_async(_callbackQueue, ^{
 		if ([_connectedCallbackSockets containsObject:socket])
 		{
+			NSLog(@"Entering _callbackQueue");
 			[_connectedCallbackSockets removeObject:socket];
 			_connectedCallbackSocketsCount = [_connectedCallbackSockets count];
+			NSLog(@"Exiting _callbackQueue");
 		}
 	});
+	NSLog(@"Exiting socketDidDisconnect");
 }
 
 - (void)replyString:(NSString*)text toSocket:(GCDAsyncSocket*)socket
