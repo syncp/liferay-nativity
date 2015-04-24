@@ -719,7 +719,9 @@ static NSInteger GOT_CALLBACK_RESPONSE = 2;
 			}
 			@finally {
 
-				NSLog(@"LiferayNativityFinder: didReadData: %lu : %d", (unsigned long)[_callbackMsgs count], _expectedCallbackResults);
+				if (_debugMode) {
+					NSLog(@"LiferayNativityFinder: didReadData: %lu : %d", (unsigned long)[_callbackMsgs count], _expectedCallbackResults);
+				}
 
 				if ([_callbackMsgs count] >= _expectedCallbackResults) {
 					[_callbackLock unlockWithCondition:GOT_CALLBACK_RESPONSE];
@@ -744,7 +746,6 @@ static NSInteger GOT_CALLBACK_RESPONSE = 2;
 {
 	// This callback can happen on either queue, yet each queue has private data
 	// In order to ensure thread-safe reads from each collection, perform the actual disconnect logic on the appropriate queue
-	NSLog(@"Entering socketDidDisconnect");
 	dispatch_async(_listenQueue, ^{
 		if ([_connectedListenSockets containsObject:socket])
 		{
@@ -786,7 +787,6 @@ static NSInteger GOT_CALLBACK_RESPONSE = 2;
 			NSLog(@"Exiting _callbackQueue : %d", _connectedCallbackSocketsCount);
 		}
 	});
-	NSLog(@"Exiting socketDidDisconnect");
 }
 
 - (void)replyString:(NSString*)text toSocket:(GCDAsyncSocket*)socket
@@ -804,13 +804,11 @@ static NSInteger GOT_CALLBACK_RESPONSE = 2;
 		
 		if (![_listenSocket acceptOnInterface:@"localhost" port:33001 error:&error])
 		{
-			NSLog(@"Can not open listenSocket on port 33001");
 			return;
 		}
 		
 		if (![_callbackSocket acceptOnInterface:@"localhost" port:33002 error:&error])
 		{
-			NSLog(@"Can not open callbackSocket on port 33002");
 			return;
 		}
 		
