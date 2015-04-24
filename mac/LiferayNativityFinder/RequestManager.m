@@ -713,7 +713,6 @@ static NSInteger GOT_CALLBACK_RESPONSE = 2;
 				if (_debugMode) {
 					NSLog(@"Callback from %@: %@", (NSString*)[NSValue valueWithPointer:socket], callbackString);
 				}
-			
 				[_callbackMsgs setValue:callbackString forKey:(NSString*)[NSValue valueWithPointer:socket]];
 
 				OSMemoryBarrier();
@@ -784,7 +783,7 @@ static NSInteger GOT_CALLBACK_RESPONSE = 2;
 			NSLog(@"Entering _callbackQueue");
 			[_connectedCallbackSockets removeObject:socket];
 			_connectedCallbackSocketsCount = [_connectedCallbackSockets count];
-			NSLog(@"Exiting _callbackQueue");
+			NSLog(@"Exiting _callbackQueue : %d", _connectedCallbackSocketsCount);
 		}
 	});
 	NSLog(@"Exiting socketDidDisconnect");
