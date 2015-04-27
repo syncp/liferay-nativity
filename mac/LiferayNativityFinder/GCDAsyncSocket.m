@@ -2505,7 +2505,6 @@ enum GCDAsyncSocketConfig
 - (void)closeWithError:(NSError *)error
 {
 	LogTrace();
-	
 	NSAssert(dispatch_get_current_queue() == socketQueue, @"Must be dispatched on socketQueue");
 	
 	
@@ -2583,10 +2582,12 @@ enum GCDAsyncSocketConfig
 		LogVerbose(@"manually closing close");
 
 		if (socket4FD) {
+			shutdown(socket4FD, SHUT_WR);
 			close(socket4FD);
 		}
 
 		if (socket6FD) {
+			shutdown(socket6FD, SHUT_WR);
 			close(socket6FD);
 		}
 	}

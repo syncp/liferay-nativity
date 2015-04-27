@@ -101,7 +101,7 @@ namespace Liferay.Nativity.Control
 		
 		/// <summary>
 		/// Mac only
-		/// 
+		///
 		/// Loads Liferay Nativity into Finder.
 		/// </summary>
 		/// <returns>true if successfully loaded</returns>
@@ -109,11 +109,35 @@ namespace Liferay.Nativity.Control
 		
 		/// <summary>
 		/// Mac only
-		/// 
+		///
 		/// Check if Liferay Nativity is loaded in Finder.
 		/// </summary>
 		/// <returns>true if loaded</returns>
 		public abstract bool Loaded { get; }
+
+		/// <summary>
+		/// Mac only
+		///
+		/// Check if Socket connection Interval
+		/// </summary>
+		/// <returns>TimeSpan</returns>
+		public abstract TimeSpan CheckSocketConnectionInterval { get; set; }
+
+		/// <summary>
+		/// Mac only
+		///
+		/// Start Socket Connection Check
+		/// </summary>
+		/// <returns>void</returns>
+		public abstract void StartSocketConnectionCheck();
+
+		/// <summary>
+		/// Mac only
+		///
+		/// Stop Socket Connection Check
+		/// </summary>
+		/// <returns>void</returns>
+		public abstract void StopSocketConnectionCheck();
 		
 		/// <summary>
 		/// Windows only
@@ -169,6 +193,13 @@ namespace Liferay.Nativity.Control
 		/// </summary>
 		/// <param name="folder">folder to set as a system folder</param>
 		public abstract void SetSystemFolder(string folder);
+
+		/// <summary>
+		/// MacOnly only
+		/// CheckSocketConnection
+		/// 
+		/// </summary>
+		public abstract void CheckSocketConnection(object state);
 		
 		/// <summary>
 		///  Mac only
@@ -183,12 +214,26 @@ namespace Liferay.Nativity.Control
 		/// </summary>
 		public event SocketCloseListener SocketClosed;
 
+		/// <summary>
+		/// Triggered when the socket connection to the native service is to be restarted
+		/// </summary>
+		public event SocketRestartListener RestartSocketConnection;
+
 		protected void OnSocketClosed()
 		{
 			var socketClosed = this.SocketClosed;
 			if (null != socketClosed)
 			{
 				socketClosed();
+			}
+		}
+
+		protected void OnSocketRestart()
+		{
+			var socketRestart = this.RestartSocketConnection;
+			if (null != socketRestart)
+			{
+				socketRestart();
 			}
 		}
 	}
